@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Interaktif Faktorisasi Aljabar - 30 Soal | SMP Kelas 7</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+        }
+        .font-heading {
+            font-family: 'Fredoka', cursive;
+        }
+        .card-shadow {
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+        }
+        .nav-btn-active {
+            border-color: #4f46e5 !important;
+            background-color: #4f46e5 !important;
+            color: #ffffff !important;
+        }
+        .nav-btn-correct {
+            border-color: #10b981 !important;
+            background-color: #ecfdf5 !important;
+            color: #047857 !important;
+        }
+        .nav-btn-wrong {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+            color: #b91c1c !important;
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col justify-between select-none">
+
+    <!-- Header Navigation -->
+    <header class="bg-white border-b border-indigo-100 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 text-white p-2.5 rounded-2xl shadow-md">
+                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-bold font-heading text-indigo-900 leading-tight">Kuis Interaktif Aljabar</h1>
+                    <p class="text-xs text-indigo-600 font-semibold">Faktorisasi Metode FPB • 30 Soal</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <!-- Status Saving/Network -->
+                <div id="save-status" class="hidden md:flex items-center space-x-1.5 text-xs text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 font-semibold">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span>Tersimpan Otomatis</span>
+                </div>
+                <!-- Skor Ringkas -->
+                <div class="bg-indigo-50 border border-indigo-200 px-3.5 py-1.5 rounded-xl text-right">
+                    <span class="text-[10px] text-indigo-600 font-bold uppercase block">Skor Sementara</span>
+                    <span id="header-score" class="text-base font-extrabold text-indigo-700">0 / 30</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- ================= KOLOM KIRI: SOAL & INTERAKSI (LG: 8 COLS) ================= -->
+        <section class="lg:col-span-8 space-y-5">
+            
+            <!-- Card Soal -->
+            <div class="bg-white p-6 md:p-8 rounded-3xl border border-indigo-100 card-shadow space-y-6 relative">
+                
+                <!-- Info Header Soal -->
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div class="flex items-center gap-2">
+                        <span id="question-badge" class="bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                            Soal 1 dari 30
+                        </span>
+                        <span id="topic-tag" class="text-xs text-indigo-700 font-bold bg-indigo-50 px-2.5 py-1 rounded-lg">
+                            FPB Angka & Variabel
+                        </span>
+                    </div>
+                    <button onclick="toggleHint()" class="text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-xl border border-amber-200 transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb text-amber-500"></i>
+                        <span>Petunjuk</span>
+                    </button>
+                </div>
+
+                <!-- Box Petunjuk (Collapsible) -->
+                <div id="hint-box" class="hidden p-4 bg-amber-50/80 border border-amber-200 rounded-2xl text-xs text-amber-900 space-y-1">
+                    <p class="font-bold flex items-center gap-1 text-amber-950">
+                        <i class="fa-solid fa-circle-info"></i> Petunjuk Cara Mengerjakan:
+                    </p>
+                    <p id="hint-text" class="leading-relaxed text-amber-900 pt-0.5">
+                        Cari FPB koefisien dan FPB variabel pangkat terkecil terlebih dahulu.
+                    </p>
+                </div>
+
+                <!-- Teks Soal -->
+                <div class="space-y-2">
+                    <h3 id="question-text" class="text-base md:text-lg font-bold text-slate-800 leading-relaxed">
+                        <!-- Diisi via JavaScript -->
+                    </h3>
+                </div>
+
+                <!-- Pilihan Jawaban -->
+                <div id="options-container" class="space-y-3 pt-2">
+                    <!-- Option Buttons diisi via JavaScript -->
+                </div>
+
+                <!-- Feedback & Pembahasan Instan -->
+                <div id="explanation-box" class="hidden p-5 rounded-2xl border text-xs md:text-sm space-y-2 transition-all">
+                    <!-- Pembahasan diisi via JavaScript -->
+                </div>
+
+                <!-- Tombol Navigasi Bawah -->
+                <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                    <button id="prev-btn" onclick="navigateQuestion(-1)" class="px-4 py-2.5 rounded-xl border border-slate-300 font-bold text-slate-600 hover:bg-slate-100 text-xs md:text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-arrow-left"></i> Sebelumnya
+                    </button>
+
+                    <button id="next-btn" onclick="navigateQuestion(1)" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs md:text-sm transition-all shadow-md flex items-center gap-2">
+                        Selanjutnya <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= KOLOM KANAN: NAVIGASI NOMOR & RINGKASAN (LG: 4 COLS) ================= -->
+        <section class="lg:col-span-4 space-y-5">
+
+            <!-- Panel Navigasi Nomor Soal -->
+            <div class="bg-white p-5 rounded-3xl border border-indigo-100 card-shadow space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h4 class="font-bold text-slate-800 font-heading text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-border-all text-indigo-600"></i> Navigasi Soal
+                    </h4>
+                    <span id="answered-count" class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
+                        0/30 Terjawab
+                    </span>
+                </div>
+
+                <!-- Legend Keterangan Warna -->
+                <div class="grid grid-cols-3 gap-1 text-[10px] text-center font-bold">
+                    <div class="p-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Belum</div>
+                    <div class="p-1 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">Benar</div>
+                    <div class="p-1 rounded bg-rose-100 text-rose-800 border border-rose-300">Salah</div>
+                </div>
+
+                <!-- Grid Tombol 1 - 30 -->
+                <div id="number-grid" class="grid grid-cols-5 gap-2 pt-1">
+                    <!-- Diisi via JavaScript -->
+                </div>
+
+                <!-- Action Reset Kuis -->
+                <div class="pt-3 border-t border-slate-100">
+                    <button onclick="confirmResetQuiz()" class="w-full py-2.5 px-3 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> Reset & Ulangi Kuis
+                    </button>
+                </div>
+            </div>
+
+            <!-- Panel Ringkasan Kemajuan -->
+            <div class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white p-5 rounded-3xl card-shadow space-y-3">
+                <h4 class="font-bold font-heading text-sm text-indigo-200 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie"></i> Ringkasan Nilai
+                </h4>
+                <div class="grid grid-cols-2 gap-3 text-center pt-1">
+                    <div class="bg-white/10 p-3 rounded-2xl border border-white/10">
+                        <span class="text-[10px] text-indigo-300 block font-semibold uppercase">Jawaban Benar</span>
+                        <span id="summary-correct" class="text-xl font-extrabold text-emerald-400">0</span>
+                    </div>
+                    <div class="bg-white/10 p-3 rounded-2xl border border-white/10">
+                        <span class="text-[10px] text-indigo-300 block font-semibold uppercase">Jawaban Salah</span>
+                        <span id="summary-wrong" class="text-xl font-extrabold text-rose-400">0</span>
+                    </div>
+                </div>
+                <div class="bg-white/10 p-3 rounded-2xl border border-white/10 text-center">
+                    <span class="text-[10px] text-indigo-300 block font-semibold uppercase">Nilai Akhir (Skala 100)</span>
+                    <span id="summary-score-100" class="text-3xl font-extrabold text-amber-300">0</span>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-indigo-100 py-4 text-center text-xs text-slate-500">
+        <p>© 2026 Kuis Interaktif Matematika SMP Kelas 7 • Faktorisasi Ekspresi Aljabar</p>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Bank Soal (30 Soal Faktorisasi Aljabar Baru)
+        // Distribusi Jawaban Acak & Seimbang (A, B, C, D)
+        const quizQuestions = [
+            {
+                id: 1,
+                topic: "Faktor Konstan",
+                q: "Hasil pemfaktoran dari ekspresi aljabar <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>10x + 25</code> adalah...",
+                options: ["5(2x + 5)", "2(5x + 10)", "5(2x + 25)", "10(x + 5)"],
+                correct: 0, // A
+                hint: "Cari FPB dari angka 10 dan 25.",
+                exp: "FPB(10, 25) = 5. Kemudian bagi tiap suku dengan 5: (10x ÷ 5 = 2x) dan (25 ÷ 5 = 5). Hasilnya: 5(2x + 5)."
+            },
+            {
+                id: 2,
+                topic: "Faktor Konstan",
+                q: "Bentuk perkalian faktor dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>14y - 21</code> yang benar adalah...",
+                options: ["7(2y - 21)", "14(y - 7)", "7(2y - 3)", "3(4y - 7)"],
+                correct: 2, // C
+                hint: "Cari FPB dari angka 14 dan 21.",
+                exp: "FPB(14, 21) = 7. Bagi suku-suku dengan 7: (14y ÷ 7 = 2y) dan (-21 ÷ 7 = -3). Hasilnya: 7(2y - 3)."
+            },
+            {
+                id: 3,
+                topic: "Variabel Tunggal",
+                q: "Faktorkan bentuk aljabar berikut: <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>9a² + 15a</code>",
+                options: ["3(3a² + 5a)", "3a(3a + 5)", "9a(a + 5)", "3a(3a + 15)"],
+                correct: 1, // B
+                hint: "FPB dari 9 dan 15 adalah 3. FPB variabel a² dan a adalah a.",
+                exp: "FPB Total = 3a. Pembagian suku: (9a² ÷ 3a = 3a) dan (15a ÷ 3a = 5). Hasilnya: 3a(3a + 5)."
+            },
+            {
+                id: 4,
+                topic: "Variabel Tunggal",
+                q: "Hasil dari pemfaktoran bentuk <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>16m³ - 24m²</code> adalah...",
+                options: ["8m²(2m - 3)", "4m²(4m - 6)", "8m(2m² - 3m)", "16m²(m - 2)"],
+                correct: 0, // A
+                hint: "FPB(16, 24) = 8. Pangkat terkecil dari m³ dan m² adalah m².",
+                exp: "FPB Total = 8m². Pembagian suku: (16m³ ÷ 8m² = 2m) dan (-24m² ÷ 8m² = -3). Hasilnya: 8m²(2m - 3)."
+            },
+            {
+                id: 5,
+                topic: "Dua Variabel",
+                q: "Bentuk sederhana dari pemfaktoran <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>12xy + 18xz</code> adalah...",
+                options: ["6x(2y + 18z)", "6(2xy + 3xz)", "12x(y + 2z)", "6x(2y + 3z)"],
+                correct: 3, // D
+                hint: "FPB(12, 18) = 6. Variabel yang sama pada kedua suku adalah x.",
+                exp: "FPB Total = 6x. Pembagian suku: (12xy ÷ 6x = 2y) dan (18xz ÷ 6x = 3z). Hasilnya: 6x(2y + 3z)."
+            },
+            {
+                id: 6,
+                topic: "Dua Variabel",
+                q: "Faktorkan bentuk aljabar berikut: <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>20p²q - 15pq²</code>",
+                options: ["5pq(4p - 3q)", "5p(4pq - 3q)", "10pq(2p - 3q)", "5pq(4p + 3q)"],
+                correct: 0, // A
+                hint: "FPB(20, 15) = 5. Pangkat terkecil variabel p dan q masing-masing adalah p dan q.",
+                exp: "FPB Total = 5pq. Pembagian suku: (20p²q ÷ 5pq = 4p) dan (-15pq² ÷ 5pq = -3q). Hasilnya: 5pq(4p - 3q)."
+            },
+            {
+                id: 7,
+                topic: "Pangkat Campuran",
+                q: "Hasil dari pemfaktoran <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>8x³y² + 12x²y³</code> adalah...",
+                options: ["4xy(2x² + 3y²)", "4x²y²(2x + 3y)", "8x²y²(x + 2y)", "4x³y³(2 + 3)"],
+                correct: 1, // B
+                hint: "FPB(8, 12) = 4. Ambil pangkat terkecil untuk x dan y yaitu x² dan y².",
+                exp: "FPB Total = 4x²y². Pembagian suku: (8x³y² ÷ 4x²y² = 2x) dan (12x²y³ ÷ 4x²y² = 3y). Hasilnya: 4x²y²(2x + 3y)."
+            },
+            {
+                id: 8,
+                topic: "Tiga Suku (Trinomial)",
+                q: "Bentuk faktorisasi dari ekspresi 3 suku <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>6a + 9b - 12c</code> adalah...",
+                options: ["3(2a + 3b - 4c)", "3(2a - 3b + 4c)", "6(a + 3b - 2c)", "3abc(2 + 3 - 4)"],
+                correct: 0, // A
+                hint: "Ketiga suku hanya memiliki faktor angka persekutuan. Cari FPB(6, 9, 12).",
+                exp: "FPB(6, 9, 12) = 3. Suku tidak memiliki variabel yang sama secara keseluruhan. Hasilnya: 3(2a + 3b - 4c)."
+            },
+            {
+                id: 9,
+                topic: "Tiga Suku (Trinomial)",
+                q: "Faktorkan bentuk aljabar berikut: <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>14x³ - 21x² + 7x</code>",
+                options: ["7(2x³ - 3x² + x)", "7x(2x² - 3x)", "7x(2x² - 3x + 1)", "14x(x² - 2x + 1)"],
+                correct: 2, // C
+                hint: "Jangan lupa bahwa (7x ÷ 7x = 1), bukan 0!",
+                exp: "FPB(14, 21, 7) = 7. FPB variabel = x. Pembagian: (14x³÷7x = 2x²), (-21x²÷7x = -3x), (7x÷7x = 1). Hasil: 7x(2x² - 3x + 1)."
+            },
+            {
+                id: 10,
+                topic: "Faktor Negatif",
+                q: "Pemfaktoran dari bentuk <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>-18x - 24y</code> dengan mengeluarkan faktor negatif adalah...",
+                options: ["6(-3x - 4y)", "-6(3x - 4y)", "-6(3x + 4y)", "-3(6x + 8y)"],
+                correct: 2, // C
+                hint: "Keluarkan -6 agar tanda di dalam kurung berubah menjadi positif.",
+                exp: "FPB(-18, -24) = -6. Bagi suku: (-18x ÷ -6 = 3x) dan (-24y ÷ -6 = +4y). Hasilnya: -6(3x + 4y)."
+            },
+            {
+                id: 11,
+                topic: "Faktor Negatif",
+                q: "Faktorkan bentuk aljabar berikut: <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>-15a²b - 25ab²</code>",
+                options: ["-5ab(3a + 5b)", "-5ab(3a - 5b)", "5ab(-3a + 5b)", "-5a²b²(3 + 5)"],
+                correct: 0, // A
+                hint: "Keluarkan FPB negatif -5ab.",
+                exp: "FPB Total = -5ab. Bagi suku: (-15a²b ÷ -5ab = 3a) dan (-25ab² ÷ -5ab = +5b). Hasilnya: -5ab(3a + 5b)."
+            },
+            {
+                id: 12,
+                topic: "Variabel Tunggal",
+                q: "Bentuk sederhana faktorisasi dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>32k⁴ + 24k²</code> adalah...",
+                options: ["8k(4k³ + 3k)", "16k²(2k² + 3)", "8k²(4k² + 3)", "8k⁴(4 + 3)"],
+                correct: 2, // C
+                hint: "FPB(32, 24) = 8. Pangkat k terkecil adalah k².",
+                exp: "FPB Total = 8k². Bagi suku: (32k⁴ ÷ 8k² = 4k²) dan (24k² ÷ 8k² = 3). Hasilnya: 8k²(4k² + 3)."
+            },
+            {
+                id: 13,
+                topic: "Dua Variabel",
+                q: "Faktorkan ekspresi aljabar berikut: <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>27m²n - 18mn²</code>",
+                options: ["9m²n²(3m - 2n)", "9mn(3m - 2n)", "9mn(3m + 2n)", "3mn(9m - 6n)"],
+                correct: 1, // B
+                hint: "FPB(27, 18) = 9. Variabel persekutuan pangkat terkecil adalah mn.",
+                exp: "FPB Total = 9mn. Bagi suku: (27m²n ÷ 9mn = 3m) dan (-18mn² ÷ 9mn = -2n). Hasilnya: 9mn(3m - 2n)."
+            },
+            {
+                id: 14,
+                topic: "Trinomial Variabel",
+                q: "Bentuk faktorisasi dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>16x⁴y² - 24x³y³ + 8x²y⁴</code> adalah...",
+                options: ["8x²y²(2x² - 3xy + y²)", "8xy(2x³y - 3x²y² + xy³)", "4x²y²(4x² - 6xy + 2y²)", "8x⁴y⁴(2 - 3 + 1)"],
+                correct: 0, // A
+                hint: "FPB angka = 8, FPB x = x², FPB y = y².",
+                exp: "FPB Total = 8x²y². Pembagian tiap suku: (16x⁴y² ÷ 8x²y² = 2x²), (-24x³y³ ÷ 8x²y² = -3xy), (8x²y⁴ ÷ 8x²y² = y²). Hasil: 8x²y²(2x² - 3xy + y²)."
+            },
+            {
+                id: 15,
+                topic: "Konstan Sederhana",
+                q: "Hasil pemfaktoran dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>15p + 45</code> adalah...",
+                options: ["5(3p + 9)", "15(p + 3)", "15(p + 45)", "3(5p + 15)"],
+                correct: 1, // B
+                hint: "15 adalah kelipatan dari 45.",
+                exp: "FPB(15, 45) = 15. Bagi suku: (15p ÷ 15 = p) dan (45 ÷ 15 = 3). Hasilnya: 15(p + 3)."
+            },
+            {
+                id: 16,
+                topic: "Faktor Negatif",
+                q: "Bentuk faktorisasi dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>-8x² + 12x</code> jika faktor persekutuan pertama positif adalah...",
+                options: ["4x(-2x + 3)", "-4x(2x + 3)", "2x(-4x + 6)", "4(-2x² + 3x)"],
+                correct: 0, // A
+                hint: "FPB angka 8 dan 12 adalah 4, variabel x.",
+                exp: "Jika dikeluarkannya +4x: (-8x² ÷ 4x = -2x) dan (12x ÷ 4x = 3). Hasilnya: 4x(-2x + 3)."
+            },
+            {
+                id: 17,
+                topic: "Tiga Suku",
+                q: "Faktorkan bentuk aljabar berikut: <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>10a²b + 15ab² - 20ab</code>",
+                options: ["5a(2ab + 3b² - 4b)", "5ab(2a + 3b - 4)", "5ab(2a + 3b + 4)", "10ab(a + 1.5b - 2)"],
+                correct: 1, // B
+                hint: "FPB(10, 15, 20) = 5. Semua suku memuat faktor ab.",
+                exp: "FPB Total = 5ab. Bagi tiap suku: (10a²b ÷ 5ab = 2a), (15ab² ÷ 5ab = 3b), (-20ab ÷ 5ab = -4). Hasilnya: 5ab(2a + 3b - 4)."
+            },
+            {
+                id: 18,
+                topic: "Variabel Campuran",
+                q: "Hasil dari pemfaktoran <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>21u³v² - 14u²v³</code> adalah...",
+                options: ["7u²v²(3u - 2v)", "7uv(3u²v - 2uv²)", "14u²v²(1.5u - v)", "7u³v³(3 - 2)"],
+                correct: 0, // A
+                hint: "FPB(21, 14) = 7. Pangkat u dan v terkecil berturut-turut u² dan v².",
+                exp: "FPB Total = 7u²v². Bagi suku: (21u³v² ÷ 7u²v² = 3u) dan (-14u²v³ ÷ 7u²v² = -2v). Hasilnya: 7u²v²(3u - 2v)."
+            },
+            {
+                id: 19,
+                topic: "Faktor Koefisien 1",
+                q: "Pemfaktoran dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>x³y + xy³</code> adalah...",
+                options: ["xy(x + y)", "xy(x² + y²)", "x²y²(x + y)", "xy(x² - y²)"],
+                correct: 1, // B
+                hint: "Koefisiennya adalah 1. FPB variabelnya adalah xy.",
+                exp: "FPB = xy. Bagi suku: (x³y ÷ xy = x²) dan (xy³ ÷ xy = y²). Hasilnya: xy(x² + y²)."
+            },
+            {
+                id: 20,
+                topic: "Konstan Sederhana",
+                q: "Bentuk sederhana perkalian faktor dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>22p - 33q + 44</code> adalah...",
+                options: ["11(2p - 3q - 4)", "11(2p + 3q + 4)", "11(2p - 3q + 4)", "22(p - 1.5q + 2)"],
+                correct: 2, // C
+                hint: "Cari FPB dari angka 22, 33, dan 44.",
+                exp: "FPB(22, 33, 44) = 11. Pembagian suku: (22p÷11 = 2p), (-33q÷11 = -3q), (44÷11 = 4). Hasilnya: 11(2p - 3q + 4)."
+            },
+            {
+                id: 21,
+                topic: "Faktor Negatif",
+                q: "Faktorkan bentuk aljabar berikut: <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>-12x³ - 16x² - 20x</code>",
+                options: ["-4x(3x² + 4x + 5)", "-4x(3x² - 4x - 5)", "-4(3x³ + 4x² + 5x)", "4x(-3x² + 4x + 5)"],
+                correct: 0, // A
+                hint: "Keluarkan faktor negatif -4x.",
+                exp: "FPB Total = -4x. Pembagian: (-12x³÷-4x = 3x²), (-16x²÷-4x = +4x), (-20x÷-4x = +5). Hasil: -4x(3x² + 4x + 5)."
+            },
+            {
+                id: 22,
+                topic: "Tiga Variabel",
+                q: "Bentuk pemfaktoran dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>8abc + 12ab - 16bc</code> adalah...",
+                options: ["4b(2ac + 3a - 4c)", "4ab(2c + 3 - 4c)", "4(2abc + 3ab - 4bc)", "8b(ac + 1.5a - 2c)"],
+                correct: 0, // A
+                hint: "Variabel apa yang ada di ketiga suku tersebut? Hanya variabel b!",
+                exp: "FPB(8, 12, 16) = 4. Variabel persekutuan di 3 suku hanya 'b'. FPB = 4b. Bagi suku: (8abc÷4b = 2ac), (12ab÷4b = 3a), (-16bc÷4b = -4c). Hasil: 4b(2ac + 3a - 4c)."
+            },
+            {
+                id: 23,
+                topic: "Pangkat Tinggi",
+                q: "Hasil dari pemfaktoran <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>25x⁵y³ - 15x³y⁵</code> adalah...",
+                options: ["5x³y³(5x² - 3y²)", "5x⁵y⁵(5/y² - 3/x²)", "5xy(5x⁴y² - 3x²y⁴)", "15x³y³(1.6x² - y²)"],
+                correct: 0, // A
+                hint: "Pangkat x terkecil = x³, pangkat y terkecil = y³.",
+                exp: "FPB Total = 5x³y³. Bagi suku: (25x⁵y³ ÷ 5x³y³ = 5x²) dan (-15x³y⁵ ÷ 5x³y³ = -3y²). Hasilnya: 5x³y³(5x² - 3y²)."
+            },
+            {
+                id: 24,
+                topic: "Konstan & Variabel",
+                q: "Pemfaktoran dari bentuk <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>36m + 24m²</code> adalah...",
+                options: ["12m(3 + 2m)", "12m(3m + 2)", "6m(6 + 4m)", "12(3m + 2m²)"],
+                correct: 0, // A
+                hint: "FPB(36, 24) = 12, variabel persekutuan m.",
+                exp: "FPB Total = 12m. Bagi suku: (36m ÷ 12m = 3) dan (24m² ÷ 12m = 2m). Hasilnya: 12m(3 + 2m)."
+            },
+            {
+                id: 25,
+                topic: "Trinomial Sederhana",
+                q: "Faktorkan ekspresi aljabar berikut: <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>5p² - 10p + 15</code>",
+                options: ["5(p² - 2p + 3)", "5p(p - 2 + 3)", "5(p² + 2p - 3)", "15(p²/3 - 2p/3 + 1)"],
+                correct: 0, // A
+                hint: "Suku ketiga 15 tidak memiliki variabel p.",
+                exp: "FPB(5, 10, 15) = 5. Karena 15 tidak memiliki p, FPB total hanya angka 5. Hasilnya: 5(p² - 2p + 3)."
+            },
+            {
+                id: 26,
+                topic: "Pangkat Variabel",
+                q: "Hasil pemfaktoran bentuk <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>18a⁴b² - 27a²b⁴</code> adalah...",
+                options: ["9a²b²(2a² - 3b²)", "9a⁴b⁴(2/b² - 3/a²)", "9ab(2a³b - 3ab³)", "18a²b²(a² - 1.5b²)"],
+                correct: 0, // A
+                hint: "FPB(18, 27) = 9. Pangkat terkecil a dan b adalah a² dan b².",
+                exp: "FPB Total = 9a²b². Bagi suku: (18a⁴b² ÷ 9a²b² = 2a²) dan (-27a²b⁴ ÷ 9a²b² = -3b²). Hasilnya: 9a²b²(2a² - 3b²)."
+            },
+            {
+                id: 27,
+                topic: "Satu Variabel",
+                q: "Bentuk sederhana faktorisasi dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>14x - 28x²</code> adalah...",
+                options: ["14x(1 - 2x)", "14x(2x - 1)", "7x(2 - 4x)", "14(x - 2x²)"],
+                correct: 0, // A
+                hint: "Ingat bahwa (14x ÷ 14x = 1). Tanda minus tetap ada pada 2x.",
+                exp: "FPB Total = 14x. Pembagian suku: (14x ÷ 14x = 1) dan (-28x² ÷ 14x = -2x). Hasilnya: 14x(1 - 2x)."
+            },
+            {
+                id: 28,
+                topic: "Trinomial Pangkat",
+                q: "Faktorkan bentuk aljabar berikut: <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>9x³ + 18x² - 27x</code>",
+                options: ["9x(x² + 2x - 3)", "9x²(x + 2 - 3)", "9(x³ + 2x² - 3x)", "3x(3x² + 6x - 9)"],
+                correct: 0, // A
+                hint: "FPB(9, 18, 27) = 9. Pangkat x terkecil = x.",
+                exp: "FPB Total = 9x. Pembagian suku: (9x³÷9x = x²), (18x²÷9x = 2x), (-27x÷9x = -3). Hasilnya: 9x(x² + 2x - 3)."
+            },
+            {
+                id: 29,
+                topic: "Faktor Negatif",
+                q: "Pemfaktoran dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>-20a² + 30ab</code> dengan mengeluarkan faktor -10a adalah...",
+                options: ["-10a(2a - 3b)", "-10a(2a + 3b)", "10a(-2a + 3b)", "-10a²(2 - 3b)"],
+                correct: 0, // A
+                hint: "Perhatikan tanda saat membagi (+30ab ÷ -10a = -3b).",
+                exp: "FPB = -10a. Bagi suku: (-20a² ÷ -10a = 2a) dan (+30ab ÷ -10a = -3b). Hasilnya: -10a(2a - 3b)."
+            },
+            {
+                id: 30,
+                topic: "Dua Variabel Kompleks",
+                q: "Bentuk sederhana perkalian faktor dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>16p³q²r + 24p²q³r²</code> adalah...",
+                options: ["8p²q²r(2p + 3qr)", "8pq(2p²q + 3pq²r²)", "16p²q²r(p + 1.5qr)", "8p³q³r²(2/q + 3/p)"],
+                correct: 0, // A
+                hint: "Pangkat terkecil p=p², q=q², r=r.",
+                exp: "FPB Total = 8p²q²r. Pembagian: (16p³q²r ÷ 8p²q²r = 2p) dan (24p²q³r² ÷ 8p²q²r = 3qr). Hasilnya: 8p²q²r(2p + 3qr)."
+            }
+        ];
+
+        // Global State Application
+        let currentIndex = 0;
+        let userAnswers = {}; // { questionIndex: chosenOptionIndex }
+        const STORAGE_KEY = "ALJABAR_QUIZ_SMP7_STATE_V1";
+
+        // Load State dari LocalStorage jika ada
+        function loadSavedState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    userAnswers = parsed.userAnswers || {};
+                    currentIndex = parsed.currentIndex || 0;
+                }
+            } catch (e) {
+                console.error("Gagal membaca dari localStorage", e);
+            }
+        }
+
+        // Save State ke LocalStorage
+        function saveState() {
+            try {
+                const stateData = {
+                    userAnswers: userAnswers,
+                    currentIndex: currentIndex
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(stateData));
+                
+                // Tampilkan badge tersimpan
+                const saveBadge = document.getElementById('save-status');
+                saveBadge.classList.remove('hidden');
+            } catch (e) {
+                console.error("Gagal menyimpan ke localStorage", e);
+            }
+        }
+
+        // Render Halaman Utama Soal
+        function renderCurrentQuestion() {
+            const q = quizQuestions[currentIndex];
+            const isAnswered = userAnswers.hasOwnProperty(currentIndex);
+            const userChoice = userAnswers[currentIndex];
+
+            // Header info
+            document.getElementById('question-badge').innerText = `Soal ${currentIndex + 1} dari ${quizQuestions.length}`;
+            document.getElementById('topic-tag').innerText = q.topic;
+            document.getElementById('question-text').innerHTML = q.q;
+            document.getElementById('hint-text').innerText = q.hint;
+
+            // Sembunyikan hint box
+            document.getElementById('hint-box').classList.add('hidden');
+
+            // Render Option Buttons
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((optText, optIdx) => {
+                const btn = document.createElement('button');
+                let btnStyle = "border-slate-200 bg-slate-50 hover:bg-indigo-50 hover:border-indigo-300 text-slate-800";
+                let iconHTML = '';
+
+                if (isAnswered) {
+                    btn.disabled = true;
+                    if (optIdx === q.correct) {
+                        btnStyle = "border-emerald-500 bg-emerald-100/90 text-emerald-950 font-bold";
+                        iconHTML = '<i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i>';
+                    } else if (optIdx === userChoice) {
+                        btnStyle = "border-rose-500 bg-rose-100/90 text-rose-950 font-bold";
+                        iconHTML = '<i class="fa-solid fa-circle-xmark text-rose-600 text-lg"></i>';
+                    } else {
+                        btnStyle = "border-slate-200 bg-slate-50 opacity-40";
+                    }
+                }
+
+                btn.className = `w-full text-left p-3.5 rounded-2xl border transition-all flex items-center justify-between font-semibold text-xs md:text-sm ${btnStyle}`;
+                btn.onclick = () => selectAnswer(optIdx);
+
+                btn.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="w-6 h-6 rounded-lg bg-white border border-slate-300 flex items-center justify-center text-xs font-bold text-slate-600 shrink-0">
+                            ${String.fromCharCode(65 + optIdx)}
+                        </span>
+                        <span>${optText}</span>
+                    </div>
+                    ${iconHTML}
+                `;
+                optionsContainer.appendChild(btn);
+            });
+
+            // Render Feedback Box jika sudah dijawab
+            const expBox = document.getElementById('explanation-box');
+            if (isAnswered) {
+                const isCorrect = userChoice === q.correct;
+                expBox.classList.remove('hidden');
+                
+                if (isCorrect) {
+                    expBox.className = "p-4 rounded-2xl border bg-emerald-50 border-emerald-200 text-emerald-900 text-xs md:text-sm space-y-1";
+                    expBox.innerHTML = `
+                        <div class="font-bold flex items-center gap-1.5 text-emerald-800 text-sm">
+                            <i class="fa-solid fa-circle-check text-emerald-600"></i> Jawaban Kamu Benar!
+                        </div>
+                        <p class="pt-1 leading-relaxed"><strong>Pembahasan:</strong> ${q.exp}</p>
+                    `;
+                } else {
+                    expBox.className = "p-4 rounded-2xl border bg-rose-50 border-rose-200 text-rose-900 text-xs md:text-sm space-y-1";
+                    expBox.innerHTML = `
+                        <div class="font-bold flex items-center gap-1.5 text-rose-800 text-sm">
+                            <i class="fa-solid fa-circle-xmark text-rose-600"></i> Jawaban Kurang Tepat
+                        </div>
+                        <p class="pt-1 leading-relaxed"><strong>Pembahasan:</strong> ${q.exp}</p>
+                    `;
+                }
+            } else {
+                expBox.classList.add('hidden');
+            }
+
+            // Update state tombol Prev/Next
+            document.getElementById('prev-btn').disabled = currentIndex === 0;
+            document.getElementById('prev-btn').classList.toggle('opacity-50', currentIndex === 0);
+
+            const nextBtn = document.getElementById('next-btn');
+            if (currentIndex === quizQuestions.length - 1) {
+                nextBtn.innerHTML = `Selesai <i class="fa-solid fa-check-double"></i>`;
+            } else {
+                nextBtn.innerHTML = `Selanjutnya <i class="fa-solid fa-arrow-right"></i>`;
+            }
+
+            renderGrid();
+            updateScores();
+        }
+
+        // Pilih Jawaban
+        function selectAnswer(optIdx) {
+            if (userAnswers.hasOwnProperty(currentIndex)) return; // Sudah dijawab
+
+            userAnswers[currentIndex] = optIdx;
+            
+            // Efek Confetti jika benar
+            if (optIdx === quizQuestions[currentIndex].correct) {
+                confetti({
+                    particleCount: 35,
+                    spread: 60,
+                    origin: { y: 0.7 }
+                });
+            }
+
+            saveState();
+            renderCurrentQuestion();
+        }
+
+        // Toggle Hint Box
+        function toggleHint() {
+            const hintBox = document.getElementById('hint-box');
+            hintBox.classList.toggle('hidden');
+        }
+
+        // Navigasi Soal (Prev/Next)
+        function navigateQuestion(direction) {
+            const target = currentIndex + direction;
+            if (target >= 0 && target < quizQuestions.length) {
+                currentIndex = target;
+                saveState();
+                renderCurrentQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // Jump ke Soal Nomor Tertentu dari Grid
+        function jumpToQuestion(idx) {
+            currentIndex = idx;
+            saveState();
+            renderCurrentQuestion();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Render Grid Navigasi 1-30
+        function renderGrid() {
+            const gridContainer = document.getElementById('number-grid');
+            gridContainer.innerHTML = '';
+
+            quizQuestions.forEach((q, idx) => {
+                const btn = document.createElement('button');
+                const isAnswered = userAnswers.hasOwnProperty(idx);
+                const userChoice = userAnswers[idx];
+                const isCurrent = idx === currentIndex;
+
+                let btnClass = "border-slate-200 bg-slate-50 text-slate-700 hover:bg-indigo-50";
+
+                if (isAnswered) {
+                    if (userChoice === q.correct) {
+                        btnClass = "nav-btn-correct font-bold";
+                    } else {
+                        btnClass = "nav-btn-wrong font-bold";
+                    }
+                }
+
+                if (isCurrent) {
+                    btnClass += " ring-2 ring-indigo-600 ring-offset-1 font-bold";
+                }
+
+                btn.className = `h-9 rounded-xl border text-xs flex items-center justify-center transition-all ${btnClass}`;
+                btn.innerText = idx + 1;
+                btn.onclick = () => jumpToQuestion(idx);
+
+                gridContainer.appendChild(btn);
+            });
+        }
+
+        // Update Skor & Ringkasan Nilai
+        function updateScores() {
+            let correctCount = 0;
+            let wrongCount = 0;
+            const answeredKeys = Object.keys(userAnswers);
+
+            answeredKeys.forEach(qIdx => {
+                if (userAnswers[qIdx] === quizQuestions[qIdx].correct) {
+                    correctCount++;
+                } else {
+                    wrongCount++;
+                }
+            });
+
+            const answeredTotal = answeredKeys.length;
+            const score100 = Math.round((correctCount / quizQuestions.length) * 100);
+
+            // Header & Side Panel Update
+            document.getElementById('header-score').innerText = `${correctCount} / ${quizQuestions.length}`;
+            document.getElementById('answered-count').innerText = `${answeredTotal}/${quizQuestions.length} Terjawab`;
+            document.getElementById('summary-correct').innerText = correctCount;
+            document.getElementById('summary-wrong').innerText = wrongCount;
+            document.getElementById('summary-score-100').innerText = score100;
+
+            // Selebrasi jika semua soal selesai dijawab
+            if (answeredTotal === quizQuestions.length && !window.celebrated) {
+                window.celebrated = true;
+                confetti({
+                    particleCount: 120,
+                    spread: 100,
+                    origin: { y: 0.5 }
+                });
+            }
+        }
+
+        // Reset Kuis
+        function confirmResetQuiz() {
+            if (confirm("Apakah kamu yakin ingin mengulang kuis dari awal? Semua jawaban tersimpan akan dihapus.")) {
+                userAnswers = {};
+                currentIndex = 0;
+                window.celebrated = false;
+                localStorage.removeItem(STORAGE_KEY);
+                renderCurrentQuestion();
+            }
+        }
+
+        // Inisialisasi Aplikasi saat Load
+        window.onload = function() {
+            loadSavedState();
+            renderCurrentQuestion();
+        };
+    </script>
+</body>
+</html>
