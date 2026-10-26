@@ -12,6 +12,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Canvas Confetti Library -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- KaTeX CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -37,6 +42,9 @@
             border-color: #ef4444 !important;
             background-color: #fef2f2 !important;
             color: #b91c1c !important;
+        }
+        .katex {
+            font-size: 1.05em;
         }
     </style>
 </head>
@@ -166,7 +174,7 @@
 
                 <!-- Action Reset Kuis -->
                 <div class="pt-3 border-t border-slate-100">
-                    <button onclick="confirmResetQuiz()" class="w-full py-2.5 px-3 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition-all flex items-center justify-center gap-2">
+                    <button onclick="showResetModal()" class="w-full py-2.5 px-3 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition-all flex items-center justify-center gap-2">
                         <i class="fa-solid fa-rotate-right"></i> Reset & Ulangi Kuis
                     </button>
                 </div>
@@ -197,6 +205,23 @@
 
     </main>
 
+    <!-- Custom Reset Confirmation Modal -->
+    <div id="reset-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-xl border border-slate-100 text-center">
+            <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <h3 class="font-bold font-heading text-lg text-slate-800">Reset Kuis?</h3>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed">Apakah kamu yakin ingin mengulang kuis dari awal? Semua jawaban tersimpan akan dihapus.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button onclick="closeResetModal()" class="py-2.5 rounded-xl border border-slate-200 font-bold text-xs text-slate-600 hover:bg-slate-50">Batal</button>
+                <button onclick="confirmResetQuiz()" class="py-2.5 rounded-xl bg-rose-600 text-white font-bold text-xs hover:bg-rose-700 shadow-sm">Ya, Reset</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="bg-white border-t border-indigo-100 py-4 text-center text-xs text-slate-500">
         <p>© 2026 Kuis Interaktif Matematika SMP Kelas 7 • Faktorisasi Ekspresi Aljabar</p>
@@ -204,285 +229,298 @@
 
     <!-- JavaScript Logic -->
     <script>
-        // Bank Soal (30 Soal Faktorisasi Aljabar Baru)
-        // Distribusi Jawaban Acak & Seimbang (A, B, C, D)
+        // Bank Soal (30 Soal Faktorisasi Aljabar Baru) dengan Format KaTeX \(...\)
+        // Jawaban benar disebar secara acak & merata (A, B, C, D)
         const quizQuestions = [
             {
                 id: 1,
                 topic: "Faktor Konstan",
-                q: "Hasil pemfaktoran dari ekspresi aljabar <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>10x + 25</code> adalah...",
-                options: ["5(2x + 5)", "2(5x + 10)", "5(2x + 25)", "10(x + 5)"],
+                q: "Hasil pemfaktoran dari ekspresi aljabar \\(10x + 25\\) adalah...",
+                options: ["\\(5(2x + 5)\\)", "\\(2(5x + 10)\\)", "\\(5(2x + 25)\\)", "\\(10(x + 5)\\)"],
                 correct: 0, // A
                 hint: "Cari FPB dari angka 10 dan 25.",
-                exp: "FPB(10, 25) = 5. Kemudian bagi tiap suku dengan 5: (10x ÷ 5 = 2x) dan (25 ÷ 5 = 5). Hasilnya: 5(2x + 5)."
+                exp: "\\(\\text{FPB}(10, 25) = 5\\). Bagi tiap suku: \\(10x \\div 5 = 2x\\) dan \\(25 \\div 5 = 5\\). Hasilnya: \\(5(2x + 5)\\)."
             },
             {
                 id: 2,
                 topic: "Faktor Konstan",
-                q: "Bentuk perkalian faktor dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>14y - 21</code> yang benar adalah...",
-                options: ["7(2y - 21)", "14(y - 7)", "7(2y - 3)", "3(4y - 7)"],
+                q: "Bentuk perkalian faktor dari \\(14y - 21\\) yang benar adalah...",
+                options: ["\\(7(2y - 21)\\)", "\\(14(y - 7)\\)", "\\(7(2y - 3)\\)", "\\(3(4y - 7)\\)"],
                 correct: 2, // C
                 hint: "Cari FPB dari angka 14 dan 21.",
-                exp: "FPB(14, 21) = 7. Bagi suku-suku dengan 7: (14y ÷ 7 = 2y) dan (-21 ÷ 7 = -3). Hasilnya: 7(2y - 3)."
+                exp: "\\(\\text{FPB}(14, 21) = 7\\). Bagi suku-suku dengan 7: \\(14y \\div 7 = 2y\\) dan \\(-21 \\div 7 = -3\\). Hasilnya: \\(7(2y - 3)\\)."
             },
             {
                 id: 3,
                 topic: "Variabel Tunggal",
-                q: "Faktorkan bentuk aljabar berikut: <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>9a² + 15a</code>",
-                options: ["3(3a² + 5a)", "3a(3a + 5)", "9a(a + 5)", "3a(3a + 15)"],
+                q: "Faktorkan bentuk aljabar berikut: \\(9a^2 + 15a\\)",
+                options: ["\\(3(3a^2 + 5a)\\)", "\\(3a(3a + 5)\\)", "\\(9a(a + 5)\\)", "\\(3a(3a + 15)\\)"],
                 correct: 1, // B
-                hint: "FPB dari 9 dan 15 adalah 3. FPB variabel a² dan a adalah a.",
-                exp: "FPB Total = 3a. Pembagian suku: (9a² ÷ 3a = 3a) dan (15a ÷ 3a = 5). Hasilnya: 3a(3a + 5)."
+                hint: "FPB dari 9 dan 15 adalah 3. FPB variabel \\(a^2\\) dan \\(a\\) adalah \\(a\\).",
+                exp: "\\(\\text{FPB Total} = 3a\\). Pembagian suku: \\(9a^2 \\div 3a = 3a\\) dan \\(15a \\div 3a = 5\\). Hasilnya: \\(3a(3a + 5)\\)."
             },
             {
                 id: 4,
                 topic: "Variabel Tunggal",
-                q: "Hasil dari pemfaktoran bentuk <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>16m³ - 24m²</code> adalah...",
-                options: ["8m²(2m - 3)", "4m²(4m - 6)", "8m(2m² - 3m)", "16m²(m - 2)"],
-                correct: 0, // A
-                hint: "FPB(16, 24) = 8. Pangkat terkecil dari m³ dan m² adalah m².",
-                exp: "FPB Total = 8m². Pembagian suku: (16m³ ÷ 8m² = 2m) dan (-24m² ÷ 8m² = -3). Hasilnya: 8m²(2m - 3)."
+                q: "Hasil dari pemfaktoran bentuk \\(16m^3 - 24m^2\\) adalah...",
+                options: ["\\(4m^2(4m - 6)\\)", "\\(8m(2m^2 - 3m)\\)", "\\(16m^2(m - 2)\\)", "\\(8m^2(2m - 3)\\)"],
+                correct: 3, // D
+                hint: "\\(\\text{FPB}(16, 24) = 8\\). Pangkat terkecil dari \\(m^3\\) dan \\(m^2\\) adalah \\(m^2\\).",
+                exp: "\\(\\text{FPB Total} = 8m^2\\). Pembagian suku: \\(16m^3 \\div 8m^2 = 2m\\) dan \\(-24m^2 \\div 8m^2 = -3\\). Hasilnya: \\(8m^2(2m - 3)\\)."
             },
             {
                 id: 5,
                 topic: "Dua Variabel",
-                q: "Bentuk sederhana dari pemfaktoran <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>12xy + 18xz</code> adalah...",
-                options: ["6x(2y + 18z)", "6(2xy + 3xz)", "12x(y + 2z)", "6x(2y + 3z)"],
-                correct: 3, // D
-                hint: "FPB(12, 18) = 6. Variabel yang sama pada kedua suku adalah x.",
-                exp: "FPB Total = 6x. Pembagian suku: (12xy ÷ 6x = 2y) dan (18xz ÷ 6x = 3z). Hasilnya: 6x(2y + 3z)."
+                q: "Bentuk sederhana dari pemfaktoran \\(12xy + 18xz\\) adalah...",
+                options: ["\\(6x(2y + 18z)\\)", "\\(6x(2y + 3z)\\)", "\\(6(2xy + 3xz)\\)", "\\(12x(y + 2z)\\)"],
+                correct: 1, // B
+                hint: "\\(\\text{FPB}(12, 18) = 6\\). Variabel yang sama pada kedua suku adalah \\(x\\).",
+                exp: "\\(\\text{FPB Total} = 6x\\). Pembagian suku: \\(12xy \\div 6x = 2y\\) dan \\(18xz \\div 6x = 3z\\). Hasilnya: \\(6x(2y + 3z)\\)."
             },
             {
                 id: 6,
                 topic: "Dua Variabel",
-                q: "Faktorkan bentuk aljabar berikut: <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>20p²q - 15pq²</code>",
-                options: ["5pq(4p - 3q)", "5p(4pq - 3q)", "10pq(2p - 3q)", "5pq(4p + 3q)"],
-                correct: 0, // A
-                hint: "FPB(20, 15) = 5. Pangkat terkecil variabel p dan q masing-masing adalah p dan q.",
-                exp: "FPB Total = 5pq. Pembagian suku: (20p²q ÷ 5pq = 4p) dan (-15pq² ÷ 5pq = -3q). Hasilnya: 5pq(4p - 3q)."
+                q: "Faktorkan bentuk aljabar berikut: \\(20p^2q - 15pq^2\\)",
+                options: ["\\(5p(4pq - 3q)\\)", "\\(10pq(2p - 3q)\\)", "\\(5pq(4p - 3q)\\)", "\\(5pq(4p + 3q)\\)"],
+                correct: 2, // C
+                hint: "\\(\\text{FPB}(20, 15) = 5\\). Pangkat terkecil variabel \\(p\\) dan \\(q\\) masing-masing adalah \\(p\\) dan \\(q\\).",
+                exp: "\\(\\text{FPB Total} = 5pq\\). Pembagian suku: \\(20p^2q \\div 5pq = 4p\\) dan \\(-15pq^2 \\div 5pq = -3q\\). Hasilnya: \\(5pq(4p - 3q)\\)."
             },
             {
                 id: 7,
                 topic: "Pangkat Campuran",
-                q: "Hasil dari pemfaktoran <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>8x³y² + 12x²y³</code> adalah...",
-                options: ["4xy(2x² + 3y²)", "4x²y²(2x + 3y)", "8x²y²(x + 2y)", "4x³y³(2 + 3)"],
-                correct: 1, // B
-                hint: "FPB(8, 12) = 4. Ambil pangkat terkecil untuk x dan y yaitu x² dan y².",
-                exp: "FPB Total = 4x²y². Pembagian suku: (8x³y² ÷ 4x²y² = 2x) dan (12x²y³ ÷ 4x²y² = 3y). Hasilnya: 4x²y²(2x + 3y)."
+                q: "Hasil dari pemfaktoran \\(8x^3y^2 + 12x^2y^3\\) adalah...",
+                options: ["\\(4x^2y^2(2x + 3y)\\)", "\\(4xy(2x^2 + 3y^2)\\)", "\\(8x^2y^2(x + 2y)\\)", "\\(4x^3y^3(2 + 3)\\)"],
+                correct: 0, // A
+                hint: "\\(\\text{FPB}(8, 12) = 4\\). Ambil pangkat terkecil untuk \\(x\\) dan \\(y\\) yaitu \\(x^2\\) dan \\(y^2\\).",
+                exp: "\\(\\text{FPB Total} = 4x^2y^2\\). Pembagian suku: \\(8x^3y^2 \\div 4x^2y^2 = 2x\\) dan \\(12x^2y^3 \\div 4x^2y^2 = 3y\\). Hasilnya: \\(4x^2y^2(2x + 3y)\\)."
             },
             {
                 id: 8,
                 topic: "Tiga Suku (Trinomial)",
-                q: "Bentuk faktorisasi dari ekspresi 3 suku <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>6a + 9b - 12c</code> adalah...",
-                options: ["3(2a + 3b - 4c)", "3(2a - 3b + 4c)", "6(a + 3b - 2c)", "3abc(2 + 3 - 4)"],
-                correct: 0, // A
-                hint: "Ketiga suku hanya memiliki faktor angka persekutuan. Cari FPB(6, 9, 12).",
-                exp: "FPB(6, 9, 12) = 3. Suku tidak memiliki variabel yang sama secara keseluruhan. Hasilnya: 3(2a + 3b - 4c)."
+                q: "Bentuk faktorisasi dari ekspresi 3 suku \\(6a + 9b - 12c\\) adalah...",
+                options: ["\\(3(2a - 3b + 4c)\\)", "\\(6(a + 3b - 2c)\\)", "\\(3abc(2 + 3 - 4)\\)", "\\(3(2a + 3b - 4c)\\)"],
+                correct: 3, // D
+                hint: "Ketiga suku hanya memiliki faktor angka persekutuan. Cari \\(\\text{FPB}(6, 9, 12)\\).",
+                exp: "\\(\\text{FPB}(6, 9, 12) = 3\\). Suku tidak memiliki variabel yang sama secara keseluruhan. Hasilnya: \\(3(2a + 3b - 4c)\\)."
             },
             {
                 id: 9,
                 topic: "Tiga Suku (Trinomial)",
-                q: "Faktorkan bentuk aljabar berikut: <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>14x³ - 21x² + 7x</code>",
-                options: ["7(2x³ - 3x² + x)", "7x(2x² - 3x)", "7x(2x² - 3x + 1)", "14x(x² - 2x + 1)"],
-                correct: 2, // C
-                hint: "Jangan lupa bahwa (7x ÷ 7x = 1), bukan 0!",
-                exp: "FPB(14, 21, 7) = 7. FPB variabel = x. Pembagian: (14x³÷7x = 2x²), (-21x²÷7x = -3x), (7x÷7x = 1). Hasil: 7x(2x² - 3x + 1)."
+                q: "Faktorkan bentuk aljabar berikut: \\(14x^3 - 21x^2 + 7x\\)",
+                options: ["\\(7(2x^3 - 3x^2 + x)\\)", "\\(7x(2x^2 - 3x + 1)\\)", "\\(7x(2x^2 - 3x)\\)", "\\(14x(x^2 - 2x + 1)\\)"],
+                correct: 1, // B
+                hint: "Jangan lupa bahwa \\(7x \\div 7x = 1\\), bukan \\(0\\)!",
+                exp: "\\(\\text{FPB}(14, 21, 7) = 7\\). FPB variabel = \\(x\\). Pembagian: \\(14x^3 \\div 7x = 2x^2\\), \\(-21x^2 \\div 7x = -3x\\), \\(7x \\div 7x = 1\\). Hasil: \\(7x(2x^2 - 3x + 1)\\)."
             },
             {
                 id: 10,
                 topic: "Faktor Negatif",
-                q: "Pemfaktoran dari bentuk <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>-18x - 24y</code> dengan mengeluarkan faktor negatif adalah...",
-                options: ["6(-3x - 4y)", "-6(3x - 4y)", "-6(3x + 4y)", "-3(6x + 8y)"],
-                correct: 2, // C
-                hint: "Keluarkan -6 agar tanda di dalam kurung berubah menjadi positif.",
-                exp: "FPB(-18, -24) = -6. Bagi suku: (-18x ÷ -6 = 3x) dan (-24y ÷ -6 = +4y). Hasilnya: -6(3x + 4y)."
+                q: "Pemfaktoran dari bentuk \\(-18x - 24y\\) dengan mengeluarkan faktor negatif adalah...",
+                options: ["\\(6(-3x - 4y)\\)", "\\(-6(3x - 4y)\\)", "\\(-3(6x + 8y)\\)", "\\(-6(3x + 4y)\\)"],
+                correct: 3, // D
+                hint: "Keluarkan \\(-6\\) agar tanda di dalam kurung berubah menjadi positif.",
+                exp: "\\(\\text{FPB}(-18, -24) = -6\\). Bagi suku: \\(-18x \\div -6 = 3x\\) dan \\(-24y \\div -6 = +4y\\). Hasilnya: \\(-6(3x + 4y)\\)."
             },
             {
                 id: 11,
                 topic: "Faktor Negatif",
-                q: "Faktorkan bentuk aljabar berikut: <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>-15a²b - 25ab²</code>",
-                options: ["-5ab(3a + 5b)", "-5ab(3a - 5b)", "5ab(-3a + 5b)", "-5a²b²(3 + 5)"],
+                q: "Faktorkan bentuk aljabar berikut: \\(-15a^2b - 25ab^2\\)",
+                options: ["\\(-5ab(3a + 5b)\\)", "\\(-5ab(3a - 5b)\\)", "\\(5ab(-3a + 5b)\\)", "\\(-5a^2b^2(3 + 5)\\)"],
                 correct: 0, // A
-                hint: "Keluarkan FPB negatif -5ab.",
-                exp: "FPB Total = -5ab. Bagi suku: (-15a²b ÷ -5ab = 3a) dan (-25ab² ÷ -5ab = +5b). Hasilnya: -5ab(3a + 5b)."
+                hint: "Keluarkan FPB negatif \\(-5ab\\).",
+                exp: "\\(\\text{FPB Total} = -5ab\\). Bagi suku: \\(-15a^2b \\div -5ab = 3a\\) dan \\(-25ab^2 \\div -5ab = +5b\\). Hasilnya: \\(-5ab(3a + 5b)\\)."
             },
             {
                 id: 12,
                 topic: "Variabel Tunggal",
-                q: "Bentuk sederhana faktorisasi dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>32k⁴ + 24k²</code> adalah...",
-                options: ["8k(4k³ + 3k)", "16k²(2k² + 3)", "8k²(4k² + 3)", "8k⁴(4 + 3)"],
-                correct: 2, // C
-                hint: "FPB(32, 24) = 8. Pangkat k terkecil adalah k².",
-                exp: "FPB Total = 8k². Bagi suku: (32k⁴ ÷ 8k² = 4k²) dan (24k² ÷ 8k² = 3). Hasilnya: 8k²(4k² + 3)."
+                q: "Bentuk sederhana faktorisasi dari \\(32k^4 + 24k^2\\) adalah...",
+                options: ["\\(8k(4k^3 + 3k)\\)", "\\(8k^2(4k^2 + 3)\\)", "\\(16k^2(2k^2 + 3)\\)", "\\(8k^4(4 + 3)\\)"],
+                correct: 1, // B
+                hint: "\\(\\text{FPB}(32, 24) = 8\\). Pangkat \\(k\\) terkecil adalah \\(k^2\\).",
+                exp: "\\(\\text{FPB Total} = 8k^2\\). Bagi suku: \\(32k^4 \\div 8k^2 = 4k^2\\) dan \\(24k^2 \\div 8k^2 = 3\\). Hasilnya: \\(8k^2(4k^2 + 3)\\)."
             },
             {
                 id: 13,
                 topic: "Dua Variabel",
-                q: "Faktorkan ekspresi aljabar berikut: <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>27m²n - 18mn²</code>",
-                options: ["9m²n²(3m - 2n)", "9mn(3m - 2n)", "9mn(3m + 2n)", "3mn(9m - 6n)"],
-                correct: 1, // B
-                hint: "FPB(27, 18) = 9. Variabel persekutuan pangkat terkecil adalah mn.",
-                exp: "FPB Total = 9mn. Bagi suku: (27m²n ÷ 9mn = 3m) dan (-18mn² ÷ 9mn = -2n). Hasilnya: 9mn(3m - 2n)."
+                q: "Faktorkan ekspresi aljabar berikut: \\(27m^2n - 18mn^2\\)",
+                options: ["\\(9m^2n^2(3m - 2n)\\)", "\\(9mn(3m + 2n)\\)", "\\(9mn(3m - 2n)\\)", "\\(3mn(9m - 6n)\\)"],
+                correct: 2, // C
+                hint: "\\(\\text{FPB}(27, 18) = 9\\). Variabel persekutuan pangkat terkecil adalah \\(mn\\).",
+                exp: "\\(\\text{FPB Total} = 9mn\\). Bagi suku: \\(27m^2n \\div 9mn = 3m\\) dan \\(-18mn^2 \\div 9mn = -2n\\). Hasilnya: \\(9mn(3m - 2n)\\)."
             },
             {
                 id: 14,
                 topic: "Trinomial Variabel",
-                q: "Bentuk faktorisasi dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>16x⁴y² - 24x³y³ + 8x²y⁴</code> adalah...",
-                options: ["8x²y²(2x² - 3xy + y²)", "8xy(2x³y - 3x²y² + xy³)", "4x²y²(4x² - 6xy + 2y²)", "8x⁴y⁴(2 - 3 + 1)"],
-                correct: 0, // A
-                hint: "FPB angka = 8, FPB x = x², FPB y = y².",
-                exp: "FPB Total = 8x²y². Pembagian tiap suku: (16x⁴y² ÷ 8x²y² = 2x²), (-24x³y³ ÷ 8x²y² = -3xy), (8x²y⁴ ÷ 8x²y² = y²). Hasil: 8x²y²(2x² - 3xy + y²)."
+                q: "Bentuk faktorisasi dari \\(16x^4y^2 - 24x^3y^3 + 8x^2y^4\\) adalah...",
+                options: ["\\(8xy(2x^3y - 3x^2y^2 + xy^3)\\)", "\\(4x^2y^2(4x^2 - 6xy + 2y^2)\\)", "\\(8x^4y^4(2 - 3 + 1)\\)", "\\(8x^2y^2(2x^2 - 3xy + y^2)\\)"],
+                correct: 3, // D
+                hint: "FPB angka = \\(8\\), FPB \\(x = x^2\\), FPB \\(y = y^2\\).",
+                exp: "\\(\\text{FPB Total} = 8x^2y^2\\). Pembagian tiap suku: \\(16x^4y^2 \\div 8x^2y^2 = 2x^2\\), \\(-24x^3y^3 \\div 8x^2y^2 = -3xy\\), \\(8x^2y^4 \\div 8x^2y^2 = y^2\\). Hasil: \\(8x^2y^2(2x^2 - 3xy + y^2)\\)."
             },
             {
                 id: 15,
                 topic: "Konstan Sederhana",
-                q: "Hasil pemfaktoran dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>15p + 45</code> adalah...",
-                options: ["5(3p + 9)", "15(p + 3)", "15(p + 45)", "3(5p + 15)"],
+                q: "Hasil pemfaktoran dari \\(15p + 45\\) meupakan...",
+                options: ["\\(5(3p + 9)\\)", "\\(15(p + 3)\\)", "\\(15(p + 45)\\)", "\\(3(5p + 15)\\)"],
                 correct: 1, // B
                 hint: "15 adalah kelipatan dari 45.",
-                exp: "FPB(15, 45) = 15. Bagi suku: (15p ÷ 15 = p) dan (45 ÷ 15 = 3). Hasilnya: 15(p + 3)."
+                exp: "\\(\\text{FPB}(15, 45) = 15\\). Bagi suku: \\(15p \\div 15 = p\\) dan \\(45 \\div 15 = 3\\). Hasilnya: \\(15(p + 3)\\)."
             },
             {
                 id: 16,
                 topic: "Faktor Negatif",
-                q: "Bentuk faktorisasi dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>-8x² + 12x</code> jika faktor persekutuan pertama positif adalah...",
-                options: ["4x(-2x + 3)", "-4x(2x + 3)", "2x(-4x + 6)", "4(-2x² + 3x)"],
-                correct: 0, // A
-                hint: "FPB angka 8 dan 12 adalah 4, variabel x.",
-                exp: "Jika dikeluarkannya +4x: (-8x² ÷ 4x = -2x) dan (12x ÷ 4x = 3). Hasilnya: 4x(-2x + 3)."
+                q: "Bentuk faktorisasi dari \\(-8x^2 + 12x\\) jika faktor persekutuan pertama positif adalah...",
+                options: ["\\(-4x(2x + 3)\\)", "\\(2x(-4x + 6)\\)", "\\(4x(-2x + 3)\\)", "\\(4(-2x^2 + 3x)\\)"],
+                correct: 2, // C
+                hint: "FPB angka 8 dan 12 adalah \\(4\\), variabel \\(x\\).",
+                exp: "Jika dikeluarkannya \\(+4x\\): \\(-8x^2 \\div 4x = -2x\\) dan \\(12x \\div 4x = 3\\). Hasilnya: \\(4x(-2x + 3)\\)."
             },
             {
                 id: 17,
                 topic: "Tiga Suku",
-                q: "Faktorkan bentuk aljabar berikut: <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>10a²b + 15ab² - 20ab</code>",
-                options: ["5a(2ab + 3b² - 4b)", "5ab(2a + 3b - 4)", "5ab(2a + 3b + 4)", "10ab(a + 1.5b - 2)"],
-                correct: 1, // B
-                hint: "FPB(10, 15, 20) = 5. Semua suku memuat faktor ab.",
-                exp: "FPB Total = 5ab. Bagi tiap suku: (10a²b ÷ 5ab = 2a), (15ab² ÷ 5ab = 3b), (-20ab ÷ 5ab = -4). Hasilnya: 5ab(2a + 3b - 4)."
+                q: "Faktorkan bentuk aljabar berikut: \\(10a^2b + 15ab^2 - 20ab\\)",
+                options: ["\\(5ab(2a + 3b - 4)\\)", "\\(5a(2ab + 3b^2 - 4b)\\)", "\\(5ab(2a + 3b + 4)\\)", "\\(10ab(a + 1.5b - 2)\\)"],
+                correct: 0, // A
+                hint: "\\(\\text{FPB}(10, 15, 20) = 5\\). Semua suku memuat faktor \\(ab\\).",
+                exp: "\\(\\text{FPB Total} = 5ab\\). Bagi tiap suku: \\(10a^2b \\div 5ab = 2a\\), \\(15ab^2 \\div 5ab = 3b\\), \\(-20ab \\div 5ab = -4\\). Hasilnya: \\(5ab(2a + 3b - 4)\\)."
             },
             {
                 id: 18,
                 topic: "Variabel Campuran",
-                q: "Hasil dari pemfaktoran <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>21u³v² - 14u²v³</code> adalah...",
-                options: ["7u²v²(3u - 2v)", "7uv(3u²v - 2uv²)", "14u²v²(1.5u - v)", "7u³v³(3 - 2)"],
-                correct: 0, // A
-                hint: "FPB(21, 14) = 7. Pangkat u dan v terkecil berturut-turut u² dan v².",
-                exp: "FPB Total = 7u²v². Bagi suku: (21u³v² ÷ 7u²v² = 3u) dan (-14u²v³ ÷ 7u²v² = -2v). Hasilnya: 7u²v²(3u - 2v)."
+                q: "Hasil dari pemfaktoran \\(21u^3v^2 - 14u^2v^3\\) adalah...",
+                options: ["\\(7uv(3u^2v - 2uv^2)\\)", "\\(14u^2v^2(1.5u - v)\\)", "\\(7u^3v^3(3 - 2)\\)", "\\(7u^2v^2(3u - 2v)\\)"],
+                correct: 3, // D
+                hint: "\\(\\text{FPB}(21, 14) = 7\\). Pangkat \\(u\\) dan \\(v\\) terkecil berturut-turut \\(u^2\\) dan \\(v^2\\).",
+                exp: "\\(\\text{FPB Total} = 7u^2v^2\\). Bagi suku: \\(21u^3v^2 \\div 7u^2v^2 = 3u\\) dan \\(-14u^2v^3 \\div 7u^2v^2 = -2v\\). Hasilnya: \\(7u^2v^2(3u - 2v)\\)."
             },
             {
                 id: 19,
                 topic: "Faktor Koefisien 1",
-                q: "Pemfaktoran dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>x³y + xy³</code> adalah...",
-                options: ["xy(x + y)", "xy(x² + y²)", "x²y²(x + y)", "xy(x² - y²)"],
+                q: "Pemfaktoran dari \\(x^3y + xy^3\\) adalah...",
+                options: ["\\(xy(x + y)\\)", "\\(xy(x^2 + y^2)\\)", "\\(x^2y^2(x + y)\\)", "\\(xy(x^2 - y^2)\\)"],
                 correct: 1, // B
-                hint: "Koefisiennya adalah 1. FPB variabelnya adalah xy.",
-                exp: "FPB = xy. Bagi suku: (x³y ÷ xy = x²) dan (xy³ ÷ xy = y²). Hasilnya: xy(x² + y²)."
+                hint: "Koefisiennya adalah 1. FPB variabelnya adalah \\(xy\\).",
+                exp: "\\(\\text{FPB} = xy\\). Bagi suku: \\(x^3y \\div xy = x^2\\) dan \\(xy^3 \\div xy = y^2\\). Hasilnya: \\(xy(x^2 + y^2)\\)."
             },
             {
                 id: 20,
                 topic: "Konstan Sederhana",
-                q: "Bentuk sederhana perkalian faktor dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>22p - 33q + 44</code> adalah...",
-                options: ["11(2p - 3q - 4)", "11(2p + 3q + 4)", "11(2p - 3q + 4)", "22(p - 1.5q + 2)"],
+                q: "Bentuk sederhana perkalian faktor dari \\(22p - 33q + 44\\) adalah...",
+                options: ["\\(11(2p - 3q - 4)\\)", "\\(11(2p + 3q + 4)\\)", "\\(11(2p - 3q + 4)\\)", "\\(22(p - 1.5q + 2)\\)"],
                 correct: 2, // C
                 hint: "Cari FPB dari angka 22, 33, dan 44.",
-                exp: "FPB(22, 33, 44) = 11. Pembagian suku: (22p÷11 = 2p), (-33q÷11 = -3q), (44÷11 = 4). Hasilnya: 11(2p - 3q + 4)."
+                exp: "\\(\\text{FPB}(22, 33, 44) = 11\\). Pembagian suku: \\(22p \\div 11 = 2p\\), \\(-33q \\div 11 = -3q\\), \\(44 \\div 11 = 4\\). Hasilnya: \\(11(2p - 3q + 4)\\)."
             },
             {
                 id: 21,
                 topic: "Faktor Negatif",
-                q: "Faktorkan bentuk aljabar berikut: <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>-12x³ - 16x² - 20x</code>",
-                options: ["-4x(3x² + 4x + 5)", "-4x(3x² - 4x - 5)", "-4(3x³ + 4x² + 5x)", "4x(-3x² + 4x + 5)"],
+                q: "Faktorkan bentuk aljabar berikut: \\(-12x^3 - 16x^2 - 20x\\)",
+                options: ["\\(-4x(3x^2 + 4x + 5)\\)", "\\(-4x(3x^2 - 4x - 5)\\)", "\\(-4(3x^3 + 4x^2 + 5x)\\)", "\\(4x(-3x^2 + 4x + 5)\\)"],
                 correct: 0, // A
-                hint: "Keluarkan faktor negatif -4x.",
-                exp: "FPB Total = -4x. Pembagian: (-12x³÷-4x = 3x²), (-16x²÷-4x = +4x), (-20x÷-4x = +5). Hasil: -4x(3x² + 4x + 5)."
+                hint: "Keluarkan faktor negatif \\(-4x\\).",
+                exp: "\\(\\text{FPB Total} = -4x\\). Pembagian: \\(-12x^3 \\div -4x = 3x^2\\), \\(-16x^2 \\div -4x = +4x\\), \\(-20x \\div -4x = +5\\). Hasil: \\(-4x(3x^2 + 4x + 5)\\)."
             },
             {
                 id: 22,
                 topic: "Tiga Variabel",
-                q: "Bentuk pemfaktoran dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>8abc + 12ab - 16bc</code> adalah...",
-                options: ["4b(2ac + 3a - 4c)", "4ab(2c + 3 - 4c)", "4(2abc + 3ab - 4bc)", "8b(ac + 1.5a - 2c)"],
-                correct: 0, // A
-                hint: "Variabel apa yang ada di ketiga suku tersebut? Hanya variabel b!",
-                exp: "FPB(8, 12, 16) = 4. Variabel persekutuan di 3 suku hanya 'b'. FPB = 4b. Bagi suku: (8abc÷4b = 2ac), (12ab÷4b = 3a), (-16bc÷4b = -4c). Hasil: 4b(2ac + 3a - 4c)."
+                q: "Bentuk pemfaktoran dari \\(8abc + 12ab - 16bc\\) adalah...",
+                options: ["\\(4ab(2c + 3 - 4c)\\)", "\\(4(2abc + 3ab - 4bc)\\)", "\\(4b(2ac + 3a - 4c)\\)", "\\(8b(ac + 1.5a - 2c)\\)"],
+                correct: 2, // C
+                hint: "Variabel apa yang ada di ketiga suku tersebut? Hanya variabel \\(b\\)!",
+                exp: "\\(\\text{FPB}(8, 12, 16) = 4\\). Variabel persekutuan di 3 suku hanya \\(b\\). \\(\\text{FPB} = 4b\\). Bagi suku: \\(8abc \\div 4b = 2ac\\), \\(12ab \\div 4b = 3a\\), \\(-16bc \\div 4b = -4c\\). Hasil: \\(4b(2ac + 3a - 4c)\\)."
             },
             {
                 id: 23,
                 topic: "Pangkat Tinggi",
-                q: "Hasil dari pemfaktoran <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>25x⁵y³ - 15x³y⁵</code> adalah...",
-                options: ["5x³y³(5x² - 3y²)", "5x⁵y⁵(5/y² - 3/x²)", "5xy(5x⁴y² - 3x²y⁴)", "15x³y³(1.6x² - y²)"],
-                correct: 0, // A
-                hint: "Pangkat x terkecil = x³, pangkat y terkecil = y³.",
-                exp: "FPB Total = 5x³y³. Bagi suku: (25x⁵y³ ÷ 5x³y³ = 5x²) dan (-15x³y⁵ ÷ 5x³y³ = -3y²). Hasilnya: 5x³y³(5x² - 3y²)."
+                q: "Hasil dari pemfaktoran \\(25x^5y^3 - 15x^3y^5\\) adalah...",
+                options: ["\\(5x^5y^5(\\frac{5}{y^2} - \\frac{3}{x^2})\\)", "\\(5x^3y^3(5x^2 - 3y^2)\\)", "\\(5xy(5x^4y^2 - 3x^2y^4)\\)", "\\(15x^3y^3(1.6x^2 - y^2)\\)"],
+                correct: 1, // B
+                hint: "Pangkat \\(x\\) terkecil = \\(x^3\\), pangkat \\(y\\) terkecil = \\(y^3\\).",
+                exp: "\\(\\text{FPB Total} = 5x^3y^3\\). Bagi suku: \\(25x^5y^3 \\div 5x^3y^3 = 5x^2\\) dan \\(-15x^3y^5 \\div 5x^3y^3 = -3y^2\\). Hasilnya: \\(5x^3y^3(5x^2 - 3y^2)\\)."
             },
             {
                 id: 24,
                 topic: "Konstan & Variabel",
-                q: "Pemfaktoran dari bentuk <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>36m + 24m²</code> adalah...",
-                options: ["12m(3 + 2m)", "12m(3m + 2)", "6m(6 + 4m)", "12(3m + 2m²)"],
-                correct: 0, // A
-                hint: "FPB(36, 24) = 12, variabel persekutuan m.",
-                exp: "FPB Total = 12m. Bagi suku: (36m ÷ 12m = 3) dan (24m² ÷ 12m = 2m). Hasilnya: 12m(3 + 2m)."
+                q: "Pemfaktoran dari bentuk \\(36m + 24m^2\\) adalah...",
+                options: ["\\(12m(3m + 2)\\)", "\\(6m(6 + 4m)\\)", "\\(12(3m + 2m^2)\\)", "\\(12m(3 + 2m)\\)"],
+                correct: 3, // D
+                hint: "\\(\\text{FPB}(36, 24) = 12\\), variabel persekutuan \\(m\\).",
+                exp: "\\(\\text{FPB Total} = 12m\\). Bagi suku: \\(36m \\div 12m = 3\\) dan \\(24m^2 \\div 12m = 2m\\). Hasilnya: \\(12m(3 + 2m)\\)."
             },
             {
                 id: 25,
                 topic: "Trinomial Sederhana",
-                q: "Faktorkan ekspresi aljabar berikut: <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>5p² - 10p + 15</code>",
-                options: ["5(p² - 2p + 3)", "5p(p - 2 + 3)", "5(p² + 2p - 3)", "15(p²/3 - 2p/3 + 1)"],
+                q: "Faktorkan ekspresi aljabar berikut: \\(5p^2 - 10p + 15\\)",
+                options: ["\\(5(p^2 - 2p + 3)\\)", "\\(5p(p - 2 + 3)\\)", "\\(5(p^2 + 2p - 3)\\)", "\\(15(\\frac{p^2}{3} - \\frac{2p}{3} + 1)\\)"],
                 correct: 0, // A
-                hint: "Suku ketiga 15 tidak memiliki variabel p.",
-                exp: "FPB(5, 10, 15) = 5. Karena 15 tidak memiliki p, FPB total hanya angka 5. Hasilnya: 5(p² - 2p + 3)."
+                hint: "Suku ketiga 15 tidak memiliki variabel \\(p\\).",
+                exp: "\\(\\text{FPB}(5, 10, 15) = 5\\). Karena 15 tidak memiliki \\(p\\), FPB total hanya angka 5. Hasilnya: \\(5(p^2 - 2p + 3)\\)."
             },
             {
                 id: 26,
                 topic: "Pangkat Variabel",
-                q: "Hasil pemfaktoran bentuk <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>18a⁴b² - 27a²b⁴</code> adalah...",
-                options: ["9a²b²(2a² - 3b²)", "9a⁴b⁴(2/b² - 3/a²)", "9ab(2a³b - 3ab³)", "18a²b²(a² - 1.5b²)"],
-                correct: 0, // A
-                hint: "FPB(18, 27) = 9. Pangkat terkecil a dan b adalah a² dan b².",
-                exp: "FPB Total = 9a²b². Bagi suku: (18a⁴b² ÷ 9a²b² = 2a²) dan (-27a²b⁴ ÷ 9a²b² = -3b²). Hasilnya: 9a²b²(2a² - 3b²)."
+                q: "Hasil pemfaktoran bentuk \\(18a^4b^2 - 27a^2b^4\\) adalah...",
+                options: ["\\(9a^4b^4(\\frac{2}{b^2} - \\frac{3}{a^2})\\)", "\\(9ab(2a^3b - 3ab^3)\\)", "\\(9a^2b^2(2a^2 - 3b^2)\\)", "\\(18a^2b^2(a^2 - 1.5b^2)\\)"],
+                correct: 2, // C
+                hint: "\\(\\text{FPB}(18, 27) = 9\\). Pangkat terkecil \\(a\\) dan \\(b\\) adalah \\(a^2\\) dan \\(b^2\\).",
+                exp: "\\(\\text{FPB Total} = 9a^2b^2\\). Bagi suku: \\(18a^4b^2 \\div 9a^2b^2 = 2a^2\\) dan \\(-27a^2b^4 \\div 9a^2b^2 = -3b^2\\). Hasilnya: \\(9a^2b^2(2a^2 - 3b^2)\\)."
             },
             {
                 id: 27,
                 topic: "Satu Variabel",
-                q: "Bentuk sederhana faktorisasi dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>14x - 28x²</code> adalah...",
-                options: ["14x(1 - 2x)", "14x(2x - 1)", "7x(2 - 4x)", "14(x - 2x²)"],
-                correct: 0, // A
-                hint: "Ingat bahwa (14x ÷ 14x = 1). Tanda minus tetap ada pada 2x.",
-                exp: "FPB Total = 14x. Pembagian suku: (14x ÷ 14x = 1) dan (-28x² ÷ 14x = -2x). Hasilnya: 14x(1 - 2x)."
+                q: "Bentuk sederhana faktorisasi dari \\(14x - 28x^2\\) adalah...",
+                options: ["\\(14x(2x - 1)\\)", "\\(14x(1 - 2x)\\)", "\\(7x(2 - 4x)\\)", "\\(14(x - 2x^2)\\)"],
+                correct: 1, // B
+                hint: "Ingat bahwa \\(14x \\div 14x = 1\\). Tanda minus tetap ada pada \\(2x\\).",
+                exp: "\\(\\text{FPB Total} = 14x\\). Pembagian suku: \\(14x \\div 14x = 1\\) dan \\(-28x^2 \\div 14x = -2x\\). Hasilnya: \\(14x(1 - 2x)\\)."
             },
             {
                 id: 28,
                 topic: "Trinomial Pangkat",
-                q: "Faktorkan bentuk aljabar berikut: <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>9x³ + 18x² - 27x</code>",
-                options: ["9x(x² + 2x - 3)", "9x²(x + 2 - 3)", "9(x³ + 2x² - 3x)", "3x(3x² + 6x - 9)"],
-                correct: 0, // A
-                hint: "FPB(9, 18, 27) = 9. Pangkat x terkecil = x.",
-                exp: "FPB Total = 9x. Pembagian suku: (9x³÷9x = x²), (18x²÷9x = 2x), (-27x÷9x = -3). Hasilnya: 9x(x² + 2x - 3)."
+                q: "Faktorkan bentuk aljabar berikut: \\(9x^3 + 18x^2 - 27x\\)",
+                options: ["\\(9x^2(x + 2 - 3)\\)", "\\(9(x^3 + 2x^2 - 3x)\\)", "\\(3x(3x^2 + 6x - 9)\\)", "\\(9x(x^2 + 2x - 3)\\)"],
+                correct: 3, // D
+                hint: "\\(\\text{FPB}(9, 18, 27) = 9\\). Pangkat \\(x\\) terkecil = \\(x\\).",
+                exp: "\\(\\text{FPB Total} = 9x\\). Pembagian suku: \\(9x^3 \\div 9x = x^2\\), \\(18x^2 \\div 9x = 2x\\), \\(-27x \\div 9x = -3\\). Hasilnya: \\(9x(x^2 + 2x - 3)\\)."
             },
             {
                 id: 29,
                 topic: "Faktor Negatif",
-                q: "Pemfaktoran dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>-20a² + 30ab</code> dengan mengeluarkan faktor -10a adalah...",
-                options: ["-10a(2a - 3b)", "-10a(2a + 3b)", "10a(-2a + 3b)", "-10a²(2 - 3b)"],
+                q: "Pemfaktoran dari \\(-20a^2 + 30ab\\) dengan mengeluarkan faktor \\(-10a\\) adalah...",
+                options: ["\\(-10a(2a - 3b)\\)", "\\(-10a(2a + 3b)\\)", "\\(10a(-2a + 3b)\\)", "\\(-10a^2(2 - 3b)\\)"],
                 correct: 0, // A
-                hint: "Perhatikan tanda saat membagi (+30ab ÷ -10a = -3b).",
-                exp: "FPB = -10a. Bagi suku: (-20a² ÷ -10a = 2a) dan (+30ab ÷ -10a = -3b). Hasilnya: -10a(2a - 3b)."
+                hint: "Perhatikan tanda saat membagi (\\(+30ab \\div -10a = -3b\\)).",
+                exp: "\\(\\text{FPB} = -10a\\). Bagi suku: \\(-20a^2 \\div -10a = 2a\\) dan \\(+30ab \\div -10a = -3b\\). Hasilnya: \\(-10a(2a - 3b)\\)."
             },
             {
                 id: 30,
                 topic: "Dua Variabel Kompleks",
-                q: "Bentuk sederhana perkalian faktor dari <code class='text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-mono font-bold'>16p³q²r + 24p²q³r²</code> adalah...",
-                options: ["8p²q²r(2p + 3qr)", "8pq(2p²q + 3pq²r²)", "16p²q²r(p + 1.5qr)", "8p³q³r²(2/q + 3/p)"],
-                correct: 0, // A
-                hint: "Pangkat terkecil p=p², q=q², r=r.",
-                exp: "FPB Total = 8p²q²r. Pembagian: (16p³q²r ÷ 8p²q²r = 2p) dan (24p²q³r² ÷ 8p²q²r = 3qr). Hasilnya: 8p²q²r(2p + 3qr)."
+                q: "Bentuk sederhana perkalian faktor dari \\(16p^3q^2r + 24p^2q^3r^2\\) meupakan...",
+                options: ["\\(8pq(2p^2q + 3pq^2r^2)\\)", "\\(16p^2q^2r(p + 1.5qr)\\)", "\\(8p^2q^2r(2p + 3qr)\\)", "\\(8p^3q^3r^2(\\frac{2}{q} + \\frac{3}{p})\\)"],
+                correct: 2, // C
+                hint: "Pangkat terkecil \\(p=p^2\\), \\(q=q^2\\), \\(r=r\\).",
+                exp: "\\(\\text{FPB Total} = 8p^2q^2r\\). Pembagian: \\(16p^3q^2r \\div 8p^2q^2r = 2p\\) dan \\(24p^2q^3r^2 \\div 8p^2q^2r = 3qr\\). Hasilnya: \\(8p^2q^2r(2p + 3qr)\\)."
             }
         ];
 
         // Global State Application
         let currentIndex = 0;
         let userAnswers = {}; // { questionIndex: chosenOptionIndex }
-        const STORAGE_KEY = "ALJABAR_QUIZ_SMP7_STATE_V1";
+        const STORAGE_KEY = "ALJABAR_QUIZ_SMP7_STATE_V2";
+
+        // Helper Render KaTeX Math
+        function renderMathInElementSafely(element) {
+            if (window.renderMathInElement) {
+                window.renderMathInElement(element, {
+                    delimiters: [
+                        {left: "\\(", right: "\\)", display: false},
+                        {left: "\\[", right: "\\]", display: true}
+                    ],
+                    throwOnError: false
+                });
+            }
+        }
 
         // Load State dari LocalStorage jika ada
         function loadSavedState() {
@@ -525,7 +563,7 @@
             document.getElementById('question-badge').innerText = `Soal ${currentIndex + 1} dari ${quizQuestions.length}`;
             document.getElementById('topic-tag').innerText = q.topic;
             document.getElementById('question-text').innerHTML = q.q;
-            document.getElementById('hint-text').innerText = q.hint;
+            document.getElementById('hint-text').innerHTML = q.hint;
 
             // Sembunyikan hint box
             document.getElementById('hint-box').classList.add('hidden');
@@ -607,6 +645,9 @@
 
             renderGrid();
             updateScores();
+
+            // Format formula matematika KaTeX
+            renderMathInElementSafely(document.querySelector('main'));
         }
 
         // Pilih Jawaban
@@ -632,6 +673,9 @@
         function toggleHint() {
             const hintBox = document.getElementById('hint-box');
             hintBox.classList.toggle('hidden');
+            if (!hintBox.classList.contains('hidden')) {
+                renderMathInElementSafely(hintBox);
+            }
         }
 
         // Navigasi Soal (Prev/Next)
@@ -721,21 +765,32 @@
             }
         }
 
+        // Reset Modal Handler
+        function showResetModal() {
+            document.getElementById('reset-modal').classList.remove('hidden');
+        }
+
+        function closeResetModal() {
+            document.getElementById('reset-modal').classList.add('hidden');
+        }
+
         // Reset Kuis
         function confirmResetQuiz() {
-            if (confirm("Apakah kamu yakin ingin mengulang kuis dari awal? Semua jawaban tersimpan akan dihapus.")) {
-                userAnswers = {};
-                currentIndex = 0;
-                window.celebrated = false;
-                localStorage.removeItem(STORAGE_KEY);
-                renderCurrentQuestion();
-            }
+            userAnswers = {};
+            currentIndex = 0;
+            window.celebrated = false;
+            localStorage.removeItem(STORAGE_KEY);
+            closeResetModal();
+            renderCurrentQuestion();
         }
 
         // Inisialisasi Aplikasi saat Load
         window.onload = function() {
             loadSavedState();
-            renderCurrentQuestion();
+            // Memberikan sedikit waktu tunggu agar script KaTeX termuat sempurna
+            setTimeout(() => {
+                renderCurrentQuestion();
+            }, 100);
         };
     </script>
 </body>
